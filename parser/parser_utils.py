@@ -15,7 +15,7 @@ class TokenStream:
         """Look at the current token without consuming it"""
         if self.position < len(self.tokens):
             return self.tokens[self.position]
-        return None
+        return ('EOF', '', -1, -1)
     
     def consume(self, expected_type=None):
         """Consume the current token and move to next"""

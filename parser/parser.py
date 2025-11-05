@@ -23,7 +23,10 @@ class Parser:
     
     def parse_statement(self):
         """Statement → Declaration | Assignment | Print | Input | If | Return"""
-        token_type = self.tokens.peek()[0] if self.tokens.peek() else None
+        if not self.tokens.has_more() or self.tokens.match('EOF'):
+            return None
+            
+        token_type = self.tokens.peek()[0]
         
         if token_type == 'DECLARE':
             return self.parse_declaration_statement()
@@ -47,14 +50,16 @@ class Parser:
         """DeclarationStatement → DECLARE IDENTIFIER"""
         self.tokens.consume('DECLARE')
         identifier_token = self.tokens.consume('IDENTIFIER')
-        return DeclarationStatement(identifier_token[1])
+        # FIX: Create IdentifierNode
+        return DeclarationStatement(IdentifierNode(identifier_token[1]))
     
     def parse_assignment_statement(self):
         """AssignmentStatement → IDENTIFIER ASSIGN Expression"""
         identifier_token = self.tokens.consume('IDENTIFIER')
         self.tokens.consume('ASSIGN')
         expression = self.parse_expression()
-        return AssignmentStatement(identifier_token[1], expression)
+        # FIX: Create IdentifierNode
+        return AssignmentStatement(IdentifierNode(identifier_token[1]), expression)
     
     def parse_print_statement(self):
         """PrintStatement → PRINT Expression"""
@@ -66,7 +71,8 @@ class Parser:
         """InputStatement → INPUT IDENTIFIER"""
         self.tokens.consume('INPUT')
         identifier_token = self.tokens.consume('IDENTIFIER')
-        return InputStatement(identifier_token[1])
+        # FIX: Create IdentifierNode
+        return InputStatement(IdentifierNode(identifier_token[1]))
     
     def parse_if_statement(self):
         """IfStatement → IF LPAREN Condition RPAREN Statement (ELSE Statement)?"""
@@ -93,9 +99,10 @@ class Parser:
     def parse_condition(self):
         """Condition → Expression RelOp Expression"""
         left = self.parse_expression()
-        rel_op = self.tokens.consume()[0]  # EQ, NE, GT, LT, GTE, LTE
+        rel_op_token = self.tokens.consume()  # EQ, NE, GT, LT, GTE, LTE
         right = self.parse_expression()
-        return BinOpNode(left, rel_op, right)
+        # FIX: Use token value for the operator
+        return BinOpNode(left, rel_op_token[1], right)
     
     def parse_expression(self):
         """Expression → Term Expression'"""
@@ -107,7 +114,7 @@ class Parser:
         if self.tokens.match('PLUS') or self.tokens.match('MINUS'):
             op_token = self.tokens.consume()
             right = self.parse_term()
-            new_left = BinOpNode(left, op_token[0], right)
+            new_left = BinOpNode(left, op_token[1], right)
             return self.parse_expression_prime(new_left)
         return left
     
@@ -121,13 +128,17 @@ class Parser:
         if self.tokens.match('MULT') or self.tokens.match('DIV'):
             op_token = self.tokens.consume()
             right = self.parse_factor()
-            new_left = BinOpNode(left, op_token[0], right)
+            new_left = BinOpNode(left, op_token[1], right)
             return self.parse_term_prime(new_left)
         return left
     
     def parse_factor(self):
         """Factor → IDENTIFIER | NUMBER | STRING | LPAREN Expression RPAREN"""
-        token_type = self.tokens.peek()[0]
+        token = self.tokens.peek()
+        if not token or token[0] == 'EOF':
+            raise ParserError("Unexpected end of input in expression")
+            
+        token_type = token[0]
         
         if token_type == 'IDENTIFIER':
             token = self.tokens.consume('IDENTIFIER')
@@ -146,5 +157,5 @@ class Parser:
         else:
             raise ParserError(
                 f"Expected identifier, number, string, or '(', got {token_type}",
-                self.tokens.peek()[2], self.tokens.peek()[3]
+                token[2], token[3]
             )
