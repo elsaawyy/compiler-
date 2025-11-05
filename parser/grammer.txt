@@ -1,0 +1,39 @@
+Program → StatementList
+
+StatementList → Statement StatementList | ε
+
+Statement → 
+    DeclarationStatement
+    | AssignmentStatement  
+    | PrintStatement
+    | InputStatement
+    | IfStatement
+    | ReturnStatement
+
+DeclarationStatement → DECLARE IDENTIFIER
+
+AssignmentStatement → IDENTIFIER ASSIGN Expression
+
+PrintStatement → PRINT Expression
+
+InputStatement → INPUT IDENTIFIER
+
+IfStatement → IF LPAREN Condition RPAREN Statement (ELSE Statement)?
+
+ReturnStatement → RETURN Expression
+
+Condition → Expression RelOp Expression
+
+RelOp → EQ | NE | GT | LT | GTE | LTE
+
+Expression → Term ExpressionPrime
+ExpressionPrime → (PLUS | MINUS) Term ExpressionPrime | ε
+
+Term → Factor TermPrime  
+TermPrime → (MULT | DIV) Factor TermPrime | ε
+
+Factor → 
+    IDENTIFIER
+    | NUMBER
+    | STRING
+    | LPAREN Expression RPAREN
