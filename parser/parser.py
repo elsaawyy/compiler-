@@ -3,7 +3,7 @@ from .ast_nodes import *
 
 class Parser:
     def __init__(self, tokens):
-        self.tokens = TokenStream(tokens)
+        self.tokens = TokenStream(tokens) # object by5ly elt3amel ma3 el tokens easily :)
     
     def parse(self):
         """Main parse method - starts parsing from Program"""
@@ -120,7 +120,7 @@ class Parser:
     
     def parse_term(self):
         """Term → Factor Term'"""
-        left = self.parse_factor()
+        left = self.parse_factor() # like identifier, number, string, or parenthesized expression
         return self.parse_term_prime(left)
     
     def parse_term_prime(self, left):

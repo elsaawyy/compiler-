@@ -1,5 +1,5 @@
 from lexer.Scanner import tokenize
-from parser.parser import Parser
+from parser import Parser
 from parser.tree_visualizer import TreeVisualizer
 from parser.parser_utils import ParserError
 
